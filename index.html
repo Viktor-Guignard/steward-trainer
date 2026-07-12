@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<title>Steward Trainer</title>
+<meta name="description" content="Entraîne-toi à devenir steward/hôtesse de l'air, façon Duolingo." />
+<link rel="manifest" href="./manifest.json" />
+<meta name="theme-color" content="#1e40af" />
+<link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Steward" />
+<style>
+  :root{
+    --bg:#0b1220;
+    --bg2:#111a2e;
+    --card:#16203a;
+    --card2:#1c2947;
+    --text:#eef2ff;
+    --muted:#93a1c4;
+    --blue:#3b82f6;
+    --blue2:#1e40af;
+    --green:#22c55e;
+    --red:#ef4444;
+    --amber:#f59e0b;
+    --purple:#8b5cf6;
+    --pink:#ec4899;
+    --radius:20px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+    background:radial-gradient(1200px 800px at 50% -10%, var(--bg2), var(--bg));
+    color:var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    overscroll-behavior:none;
+  }
+  #app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    padding:env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 16px);
+    display:flex;
+    flex-direction:column;
+  }
+  .screen{display:none;flex-direction:column;flex:1;animation:fadein .25s ease;}
+  .screen.active{display:flex;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* HOME */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 2px 6px;}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px;letter-spacing:.2px;}
+  .brand .plane{font-size:20px;}
+  .stats{display:flex;gap:10px;}
+  .stat-pill{display:flex;align-items:center;gap:5px;background:var(--card);padding:6px 10px;border-radius:999px;font-weight:700;font-size:14px;border:1px solid rgba(255,255,255,.06);}
+  .stat-pill.streak{color:var(--amber);}
+  .stat-pill.xp{color:var(--purple);}
+
+  h1.page-title{font-size:26px;font-weight:800;margin:10px 2px 2px;}
+  p.page-sub{color:var(--muted);margin:0 2px 18px;font-size:14px;}
+
+  .cat-grid{display:flex;flex-direction:column;gap:12px;}
+  .cat-card{
+    display:flex;align-items:center;gap:14px;
+    background:linear-gradient(145deg,var(--card),var(--card2));
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:var(--radius);
+    padding:16px;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .cat-card:active{transform:scale(.97);}
+  .cat-icon{
+    width:52px;height:52px;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;flex:none;
+  }
+  .cat-body{flex:1;min-width:0;}
+  .cat-title{font-weight:800;font-size:16px;margin-bottom:2px;}
+  .cat-desc{color:var(--muted);font-size:12.5px;line-height:1.3;}
+  .cat-progress{margin-top:8px;height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;}
+  .cat-progress > div{height:100%;border-radius:99px;background:var(--green);}
+  .cat-best{font-size:11px;color:var(--muted);margin-top:4px;}
+  .chev{color:var(--muted);font-size:20px;flex:none;}
+
+  /* QUIZ */
+  .quiz-header{display:flex;align-items:center;gap:10px;padding:10px 0 16px;}
+  .back-btn{
+    width:38px;height:38px;border-radius:12px;background:var(--card);
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+    border:1px solid rgba(255,255,255,.06);flex:none;
+  }
+  .progress-track{flex:1;height:14px;background:var(--card);border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,.06);}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--green),#4ade80);border-radius:99px;transition:width .3s ease;}
+  .lives{display:flex;gap:3px;font-size:17px;flex:none;}
+
+  .q-card{
+    background:var(--card);border-radius:var(--radius);padding:22px 18px;
+    border:1px solid rgba(255,255,255,.06);margin-bottom:18px;
+  }
+  .q-cat-tag{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+  .q-text{font-size:19px;font-weight:700;line-height:1.35;}
+
+  .options{display:flex;flex-direction:column;gap:10px;flex:1;}
+  .option{
+    background:var(--card);border:2px solid rgba(255,255,255,.08);
+    border-radius:16px;padding:15px 16px;font-size:15.5px;font-weight:600;
+    text-align:left;color:var(--text);cursor:pointer;transition:all .15s ease;
+  }
+  .option:active{transform:scale(.98);}
+  .option.correct{background:rgba(34,197,94,.15);border-color:var(--green);color:#86efac;}
+  .option.wrong{background:rgba(239,68,68,.15);border-color:var(--red);color:#fca5a5;}
+  .option.disabled{pointer-events:none;opacity:.55;}
+  .option.reveal-correct{background:rgba(34,197,94,.15);border-color:var(--green);color:#86efac;opacity:1;}
+
+  .feedback-bar{
+    margin-top:auto;padding:16px;border-radius:18px;
+    display:none;align-items:flex-start;gap:12px;
+  }
+  .feedback-bar.show{display:flex;animation:slideup .25s ease;}
+  @keyframes slideup{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .feedback-bar.correct{background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.35);}
+  .feedback-bar.wrong{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.35);}
+  .fb-icon{font-size:22px;flex:none;}
+  .fb-text{font-size:13.5px;line-height:1.4;color:var(--text);}
+  .fb-title{font-weight:800;font-size:15px;margin-bottom:3px;}
+  .fb-title.correct{color:#4ade80;}
+  .fb-title.wrong{color:#f87171;}
+
+  .btn{
+    display:block;width:100%;padding:16px;border-radius:16px;border:none;
+    font-size:16px;font-weight:800;cursor:pointer;margin-top:14px;
+    background:var(--blue);color:white;transition:transform .1s ease, opacity .1s ease;
+  }
+  .btn:active{transform:scale(.98);}
+  .btn.secondary{background:var(--card);color:var(--text);border:1px solid rgba(255,255,255,.1);}
+  .btn:disabled{opacity:.4;pointer-events:none;}
+
+  /* RESULT */
+  .result-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 0;}
+  .result-emoji{font-size:64px;margin-bottom:6px;}
+  .result-title{font-size:24px;font-weight:800;margin-bottom:6px;}
+  .result-sub{color:var(--muted);font-size:14px;margin-bottom:22px;}
+  .result-stats{display:flex;gap:12px;width:100%;margin-bottom:8px;}
+  .result-stat{flex:1;background:var(--card);border-radius:16px;padding:16px 8px;border:1px solid rgba(255,255,255,.06);}
+  .result-stat .num{font-size:22px;font-weight:800;}
+  .result-stat .lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  .home-btn-row{display:flex;gap:10px;width:100%;margin-top:18px;}
+  .home-btn-row .btn{margin-top:0;}
+
+  ::selection{background:var(--blue);color:white;}
+
+  .sync-row{display:flex;gap:10px;margin-top:20px;}
+  .sync-btn{
+    flex:1;background:var(--card);color:var(--muted);
+    border:1px solid rgba(255,255,255,.08);border-radius:14px;
+    padding:12px 8px;font-size:13px;font-weight:700;cursor:pointer;
+    font-family:inherit;transition:transform .1s ease;
+  }
+  .sync-btn:active{transform:scale(.97);}
+  .sync-hint{color:var(--muted);font-size:11.5px;line-height:1.4;margin:10px 2px 4px;text-align:center;opacity:.8;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME SCREEN -->
+  <section id="screen-home" class="screen active">
+    <div class="topbar">
+      <div class="brand"><span class="plane">✈️</span> Steward Trainer</div>
+      <div class="stats">
+        <div class="stat-pill streak">🔥 <span id="streak-count">0</span></div>
+        <div class="stat-pill xp">⭐ <span id="xp-count">0</span></div>
+      </div>
+    </div>
+    <h1 class="page-title">Salut 👋</h1>
+    <p class="page-sub">Choisis une catégorie pour t'entraîner, comme sur Duolingo.</p>
+    <div class="cat-grid" id="cat-grid"></div>
+    <div class="sync-row">
+      <button class="sync-btn" id="btn-export">📤 Copier ma progression</button>
+      <button class="sync-btn" id="btn-import">📥 Restaurer un code</button>
+    </div>
+    <p class="sync-hint">Ta progression est sauvegardée automatiquement sur cet appareil. Pour la transférer sur un autre appareil : copie le code ici, puis « Restaurer » là-bas.</p>
+  </section>
+
+  <!-- QUIZ SCREEN -->
+  <section id="screen-quiz" class="screen">
+    <div class="quiz-header">
+      <div class="back-btn" id="quiz-back">✕</div>
+      <div class="progress-track"><div class="progress-fill" id="quiz-progress"></div></div>
+      <div class="lives" id="quiz-lives"></div>
+    </div>
+    <div class="q-card">
+      <div class="q-cat-tag" id="q-cat-tag"></div>
+      <div class="q-text" id="q-text"></div>
+    </div>
+    <div class="options" id="q-options"></div>
+    <div class="feedback-bar" id="feedback-bar">
+      <div class="fb-icon" id="fb-icon">✅</div>
+      <div>
+        <div class="fb-title" id="fb-title">Correct !</div>
+        <div class="fb-text" id="fb-text"></div>
+      </div>
+    </div>
+    <button class="btn" id="quiz-continue" disabled>Valider</button>
+  </section>
+
+  <!-- RESULT SCREEN -->
+  <section id="screen-result" class="screen">
+    <div class="result-wrap">
+      <div class="result-emoji" id="result-emoji">🎉</div>
+      <div class="result-title" id="result-title">Bien joué !</div>
+      <div class="result-sub" id="result-sub">Tu progresses vite.</div>
+      <div class="result-stats">
+        <div class="result-stat"><div class="num" id="res-score">0/0</div><div class="lbl">Score</div></div>
+        <div class="result-stat"><div class="num" id="res-xp">+0</div><div class="lbl">XP gagnés</div></div>
+        <div class="result-stat"><div class="num" id="res-best">0%</div><div class="lbl">Meilleur score</div></div>
+      </div>
+    </div>
+    <div class="home-btn-row">
+      <button class="btn secondary" id="result-retry">Réessayer</button>
+      <button class="btn" id="result-home">Accueil</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============ DONNÉES ============ */
+
+const CATEGORIES = [
+  { id:"securite", title:"Sécurité & urgences", desc:"Évacuation, oxygène, gilets, premiers secours", icon:"🛟", color:"#ef4444" },
+  { id:"reglementation", title:"Réglementation aérienne", desc:"IATA/OACI, bagages, matières dangereuses", icon:"📋", color:"#3b82f6" },
+  { id:"service", title:"Service & relation client", desc:"Cabine, passagers difficiles, protocoles", icon:"🍽️", color:"#f59e0b" },
+  { id:"entretien", title:"Culture générale & entretien", desc:"Questions type entretien, savoir-être", icon:"🎤", color:"#8b5cf6" },
+  { id:"iata", title:"Géographie — Codes IATA", desc:"Reconnaître les codes des aéroports du monde", icon:"🌍", color:"#22c55e" },
+  { id:"capitales", title:"Géographie — Capitales & pays", desc:"Capitales du monde entier", icon:"🗺️", color:"#ec4899" },
+];
+
+const QUESTIONS = {
+  securite: [
+    { q:"Que faut-il faire en premier en enfilant le masque à oxygène ?", o:["Aider les autres avant soi-même","Le mettre sur soi avant d'aider un enfant ou une autre personne","Attendre les instructions du commandant avant de le toucher","Ne le mettre qu'en cas de fumée visible"], a:1, e:"Consigne universelle : on met son propre masque avant d'aider quelqu'un d'autre, car l'hypoxie peut rendre inconscient en quelques secondes." },
+    { q:"Pourquoi ne faut-il PAS gonfler son gilet de sauvetage à l'intérieur de la cabine ?", o:["Ça fait trop de bruit","Il risque de bloquer le passage vers les issues et de gêner l'évacuation","Ça abîme le gilet","Ce n'est pas interdit"], a:1, e:"Un gilet gonflé prend du volume et peut coincer le passager dans les rangées ou bloquer une issue. On le gonfle seulement une fois à l'extérieur." },
+    { q:"Que signifie la 'règle des 90 secondes' en aviation civile ?", o:["Le temps max pour servir un repas","Un avion doit pouvoir être évacué en 90 secondes même avec la moitié des issues bloquées","Le temps de décollage maximum autorisé","Le délai avant d'appeler les secours"], a:1, e:"C'est une exigence de certification : l'évacuation complète doit être possible en 90 secondes maximum, moitié des issues indisponibles." },
+    { q:"Quelle est la fonction principale de la position 'brace' (position de protection) ?", o:["Faciliter la respiration","Réduire les risques de blessures lors d'un impact","Aider à garder son calme","Faciliter l'évacuation par les fenêtres"], a:1, e:"La position penchée en avant, tête baissée, protège la tête et la colonne vertébrale lors d'un choc." },
+    { q:"Quel équipement sert à éteindre un feu électronique (ordinateur, batterie) en cabine ?", o:["Extincteur à eau","Extincteur au Halon / poudre adapté au feu électrique","Couverture ignifuge uniquement","Trousse de premiers secours"], a:1, e:"Les extincteurs au Halon (ou équivalent) sont conçus pour les feux électriques sans conduire le courant ni endommager davantage l'appareil." },
+    { q:"Que veut dire 'armer' une porte avant le décollage ?", o:["La verrouiller à clé","Connecter le toboggan d'évacuation pour qu'il se déploie automatiquement à l'ouverture","La nettoyer","Vérifier le badge du passager"], a:1, e:"Une porte armée déploiera automatiquement le toboggan si elle est ouverte en urgence — d'où l'importance du 'cross-check' avant chaque vol." },
+    { q:"Qu'est-ce qu'un 'cross-check' effectué par l'équipage ?", o:["Une vérification croisée entre membres d'équipage que toutes les portes sont dans le bon état (armées/désarmées)","Un test de la radio","Un contrôle des billets","Une vérification médicale des passagers"], a:0, e:"Le cross-check évite qu'une porte reste armée à l'arrivée (déploiement accidentel du toboggan) ou désarmée au décollage." },
+    { q:"En cas de fumée dense en cabine, quel geste est recommandé aux passagers ?", o:["Se lever et courir vers la sortie la plus proche","Rester assis et respirer normalement, tête haute","Se baisser le plus possible, sous le niveau de la fumée, pour respirer un air plus clair","Ouvrir un hublot"], a:2, e:"La fumée s'accumule en hauteur : rester bas au niveau du sol permet de respirer un air moins toxique." },
+    { q:"Quel est le rôle du 'ELT' (Emergency Locator Transmitter) ?", o:["Éclairer la cabine en cas de panne","Émettre un signal de détresse permettant de localiser l'appareil après un accident","Communiquer avec la tour de contrôle","Gonfler les gilets automatiquement"], a:1, e:"L'ELT se déclenche automatiquement lors d'un choc violent et transmet la position de l'appareil aux secours." },
+    { q:"Pourquoi les consignes de sécurité insistent-elles sur le fait de laisser ses bagages lors d'une évacuation ?", o:["Pour des raisons d'assurance uniquement","Un passager qui s'arrête pour récupérer un bagage ralentit toute l'évacuation et peut bloquer le toboggan","Les bagages sont automatiquement récupérés après","Ce n'est qu'une recommandation, pas une règle"], a:1, e:"Chaque seconde compte : un bagage peut aussi déchirer le toboggan gonflable, rendant l'évacuation dangereuse pour tous." },
+    { q:"Quel est l'objectif des 'précautions universelles' en cas de contact avec du sang ou des fluides corporels ?", o:["Décorer joliment la trousse médicale","Se protéger systématiquement (gants, etc.) en considérant tout fluide comme potentiellement infectieux","Uniquement utile si le passager est connu comme malade","Ne s'applique qu'au personnel médical au sol"], a:1, e:"Le PNC traite chaque cas comme potentiellement contaminant, par précaution, indépendamment du passager." },
+    { q:"À quoi sert le mégaphone présent à bord ?", o:["Diffuser de la musique en cabine","Donner des instructions d'évacuation audibles même si les systèmes électriques sont hors service","Communiquer avec le sol","Réveiller les passagers"], a:1, e:"En cas de panne électrique totale, le mégaphone reste un moyen fiable de diriger les passagers vers les issues." },
+    { q:"Que signifie un signal sonore continu ('gong' répété) déclenché par le poste de pilotage ?", o:["Fin du vol imminente","Signal d'alerte/urgence pour préparer la cabine (selon procédure compagnie)","Repas prêt à être servi","Turbulences légères uniquement"], a:1, e:"Les gongs répétés sont des signaux codifiés qui alertent l'équipage cabine d'une situation nécessitant une préparation immédiate." },
+    { q:"Pourquoi retire-t-on ses chaussures à talons avant de descendre par un toboggan d'évacuation ?", o:["Pour aller plus vite en marchant pieds nus","Les talons peuvent percer le toboggan gonflable","C'est juste plus confortable","Ce n'est pas recommandé, il faut les garder"], a:1, e:"Un talon aiguille ou pointu peut crever le toboggan et le rendre inutilisable pour les suivants." },
+    { q:"Quel est le rôle du défibrillateur automatisé externe (DAE) à bord ?", o:["Mesurer la tension artérielle","Analyser le rythme cardiaque et délivrer un choc si nécessaire en cas d'arrêt cardiaque","Injecter des médicaments","Prendre la température"], a:1, e:"Le DAE guide vocalement l'utilisateur et ne délivre un choc que si le rythme cardiaque le nécessite réellement." },
+  ],
+  reglementation: [
+    { q:"Que signifie le sigle IATA ?", o:["International Aviation Traffic Authority","International Air Transport Association","Institut Aérien du Transport Aérien","International Aircraft Technical Agency"], a:1, e:"L'IATA est l'association qui regroupe les compagnies aériennes et fixe de nombreux standards (codes aéroports, billetterie, etc.)." },
+    { q:"Que signifie le sigle OACI (ICAO en anglais) ?", o:["Organisation de l'Aviation Civile Internationale","Office Aérien de Coordination Internationale","Organisation Aérienne du Commerce International","Institut de Certification Aéronautique"], a:0, e:"L'OACI est l'agence des Nations Unies qui établit les normes internationales de sécurité et de navigation aérienne." },
+    { q:"Quelle est la règle standard pour les liquides en bagage cabine ?", o:["Interdits totalement","Contenants de 100 ml maximum, dans un sac transparent refermable","500 ml maximum par contenant","Uniquement l'eau est autorisée"], a:1, e:"Règle internationale courante : chaque contenant ≤100 ml, regroupés dans un sac plastique transparent d'un litre maximum." },
+    { q:"Où doivent obligatoirement voyager les batteries au lithium de rechange (piles externes, batteries d'appareil photo) ?", o:["En soute uniquement","En bagage cabine uniquement, jamais en soute","Peu importe, aucune règle ne s'applique","Dans les toilettes de l'avion"], a:1, e:"Le risque d'incendie des batteries lithium impose qu'elles restent en cabine, où un départ de feu peut être détecté et traité rapidement." },
+    { q:"Quelle est la durée de validité minimale généralement exigée pour un passeport à l'entrée dans l'espace Schengen ?", o:["Valide jusqu'au jour du voyage suffit","Au moins 3 mois après la date de retour prévue","Au moins 6 mois après la date de retour prévue, émis depuis moins de 10 ans","Aucune durée minimale n'est exigée"], a:2, e:"C'est une règle très répandue (bien que variable selon les pays) : marge de sécurité de 6 mois après la date de sortie prévue." },
+    { q:"Un passager peut-il refuser d'être fouillé au contrôle de sûreté et embarquer quand même ?", o:["Oui, s'il proteste suffisamment","Non, le refus de contrôle entraîne un refus d'accès à la zone sûre / à bord","Oui, s'il montre son billet","Oui, uniquement pour les vols intérieurs"], a:1, e:"Le contrôle de sûreté est une condition obligatoire d'accès à la zone réglementée et à l'aéronef." },
+    { q:"Que désigne le terme 'marchandises dangereuses' (dangerous goods) dans le transport aérien ?", o:["Uniquement les armes à feu","Toute matière pouvant présenter un risque pour la sécurité du vol (explosifs, gaz, matières inflammables, corrosives, etc.)","Les bagages en surpoids","Les animaux vivants"], a:1, e:"La catégorie est large : gaz, liquides inflammables, matières radioactives, corrosives, etc., toutes réglementées par l'IATA/OACI." },
+    { q:"Le règlement européen EU261 concerne principalement quoi ?", o:["La sécurité incendie des avions","Les droits des passagers en cas de retard, annulation ou refus d'embarquement","La formation des pilotes","Le poids maximal des bagages en soute"], a:1, e:"EU261 encadre l'indemnisation et l'assistance des passagers au sein/au départ de l'UE en cas de perturbation de vol." },
+    { q:"Qu'est-ce qu'un 'code de vol partagé' (codeshare) ?", o:["Un vol opéré par une compagnie mais vendu sous le nom d'une ou plusieurs autres compagnies partenaires","Un vol gratuit pour le personnel","Un vol avec deux commandants de bord","Un vol effectué par deux avions simultanément"], a:0, e:"Le codeshare permet à des compagnies alliées de vendre des billets sur un même vol physique, sous des numéros de vol différents." },
+    { q:"Quel document autorise légalement un membre d'équipage à exercer sur un type d'avion donné ?", o:["Son passeport","Sa qualification de type (type rating) ou habilitation spécifique à l'appareil","Son permis de conduire","Un simple certificat médical"], a:1, e:"Chaque type d'appareil (A320, B777, etc.) nécessite une formation et une habilitation spécifiques, y compris pour le PNC." },
+    { q:"Que signifie 'PNC' dans le jargon aérien français ?", o:["Personnel Navigant Commercial (les hôtesses et stewards)","Personnel National de Contrôle","Poste de Navigation Centrale","Procédure Normale de Cabine"], a:0, e:"Le PNC désigne l'ensemble du personnel de cabine, par opposition au PNT (Personnel Navigant Technique = pilotes)." },
+    { q:"Un animal de compagnie en cabine doit généralement respecter quelle règle principale ?", o:["Aucune règle particulière","Rester dans une cage/sac fermé sous le siège devant le passager, sous certaines conditions de poids","Voyager toujours en soute","Être attaché avec une laisse dans l'allée"], a:1, e:"La plupart des compagnies exigent un contenant fermé sous le siège avant, avec un poids maximal (souvent 8 kg incluant le sac)." },
+  ],
+  service: [
+    { q:"Un passager devient agressif verbalement. Quelle est la première attitude recommandée ?", o:["Hausser le ton pour reprendre le contrôle","Rester calme, écouter activement, et essayer de comprendre la cause de la frustration","Ignorer complètement le passager","Le menacer immédiatement d'un débarquement"], a:1, e:"L'écoute active et le calme désamorcent souvent la tension avant qu'elle ne s'aggrave ; l'escalade vient en dernier recours." },
+    { q:"Que signifie le code repas spécial 'VGML' ?", o:["Repas végétarien","Repas sans gluten","Repas pour enfant","Repas casher"], a:0, e:"VGML = Vegetarian Meal. Chaque compagnie utilise des codes similaires (GFML sans gluten, CHML enfant, KSML casher, etc.)." },
+    { q:"Un passager présente des signes de malaise (pâleur, sueurs). Quelle est la bonne première réaction ?", o:["Continuer le service et revenir plus tard","Évaluer la situation, rassurer le passager, informer le chef de cabine et rechercher un professionnel de santé à bord si besoin","Lui donner immédiatement un médicament","Ignorer sauf perte de connaissance"], a:1, e:"La procédure standard est d'évaluer, alerter la hiérarchie (chef de cabine/commandant) et solliciter un médecin/infirmier passager si disponible." },
+    { q:"Peut-on refuser de servir de l'alcool à un passager ?", o:["Non, c'est un droit absolu du passager","Oui, notamment si le passager semble déjà en état d'ébriété ou perturbe la cabine","Seulement si le commandant l'ordonne par écrit","Non, sauf sur demande de la police"], a:1, e:"Le PNC a l'autorité et la responsabilité de refuser l'alcool pour préserver la sécurité et le confort de la cabine." },
+    { q:"Pendant une turbulence modérée à forte, que doit faire le service en cabine ?", o:["Continuer normalement","Suspendre immédiatement le service, sécuriser les objets et s'asseoir si les consignes du cockpit l'exigent","Accélérer le service pour finir plus vite","Servir uniquement les boissons chaudes"], a:1, e:"La sécurité prime : le service est interrompu, chariots freinés/rangés, et l'équipage s'attache si nécessaire." },
+    { q:"Un passager se plaint d'un retard important. Quelle approche est la plus professionnelle ?", o:["Dire que ce n'est pas votre problème","Reconnaître la frustration, expliquer ce qui est su, et orienter vers les bons interlocuteurs pour compensation","Promettre une compensation financière immédiate sans vérifier","Éviter le passager"], a:1, e:"On valide l'émotion, on informe avec les faits disponibles, sans promettre ce qui dépend d'un autre service (sol, indemnisation)." },
+    { q:"Quelle qualité est le plus souvent citée comme essentielle dans le métier de steward/hôtesse ?", o:["La taille physique uniquement","Le sang-froid et la capacité à gérer le stress et l'imprévu","La capacité à dormir peu","La maîtrise de la cuisine gastronomique"], a:1, e:"Le calme et la gestion du stress sont centraux : la dimension sécurité prime toujours sur la dimension service." },
+    { q:"Que signifie l'acronyme 'UM' utilisé en cabine ?", o:["Unaccompanied Minor (mineur non accompagné)","Urgence Médicale","Uniform Manquant","Unité Météo"], a:0, e:"UM désigne un enfant voyageant seul, nécessitant une attention et un suivi particuliers de l'équipage." },
+    { q:"Face à une différence culturelle (ex : refus de contact physique, codes de politesse différents), quelle attitude adopter ?", o:["Imposer les usages du pays d'origine de la compagnie","Faire preuve d'adaptabilité et de respect des sensibilités culturelles des passagers","Ignorer la différence","Se moquer discrètement"], a:1, e:"Le métier est international : l'ouverture et le respect des différences culturelles font partie des compétences clés." },
+  ],
+  entretien: [
+    { q:"En entretien, à la question 'Pourquoi voulez-vous devenir steward/hôtesse ?', quelle réponse est la plus convaincante ?", o:["Pour voyager gratuitement","Une réponse concrète liant goût du service, du contact humain et sens des responsabilités en matière de sécurité","Pour éviter un travail de bureau","Parce qu'un ami l'a conseillé"], a:1, e:"Les recruteurs cherchent une motivation sincère centrée sur le service et la sécurité, pas seulement les avantages du poste." },
+    { q:"Quelle qualité est généralement testée par une mise en situation type 'passager mécontent' en entretien ?", o:["La rapidité de calcul mental","La capacité à gérer un conflit avec calme, écoute et solution concrète","La connaissance des capitales du monde","La condition physique"], a:1, e:"Ces mises en situation évaluent le savoir-être : calme, écoute active, sens du service sous pression." },
+    { q:"Pourquoi le multilinguisme est-il souvent un atout fort en entretien ?", o:["Ce n'est jamais évalué","Il permet de mieux servir une clientèle internationale et de gérer des situations dans plusieurs langues","Seul l'anglais compte, les autres langues sont inutiles","Il n'a aucun impact sur le recrutement"], a:1, e:"Beaucoup de compagnies valorisent une seconde ou troisième langue pour l'accueil de passagers variés et les situations d'urgence." },
+    { q:"Un test de natation est souvent exigé au recrutement. Pourquoi ?", o:["Pour une simple question de forme physique générale","Pour vérifier la capacité à évacuer et flotter en cas d'amerrissage d'urgence","C'est une légende, ce test n'existe pas","Pour le loisir pendant les escales"], a:1, e:"En cas d'amerrissage, le PNC doit pouvoir nager et aider les passagers, d'où ce test quasi systématique." },
+    { q:"Quelle tenue est généralement attendue lors d'un entretien pour ce métier ?", o:["Tenue décontractée, l'important est la personnalité","Tenue soignée et professionnelle, reflétant les standards de présentation du métier","Uniforme de la compagnie visée","Peu importe, seul le CV compte"], a:1, e:"L'image et la présentation font partie intégrante du métier ; une tenue soignée est perçue comme un signal de professionnalisme." },
+    { q:"Que valorisent le plus les recruteurs dans un exemple de 'travail d'équipe' raconté en entretien ?", o:["Le fait d'avoir travaillé seul efficacement","Une situation concrète montrant écoute, coopération et résolution collective d'un problème","Le nombre de personnes dans l'équipe","La durée du projet uniquement"], a:1, e:"L'exemple doit illustrer un comportement (écoute, entraide, adaptation), pas juste décrire un contexte." },
+    { q:"Quelle est une bonne façon de répondre à 'Quel est votre défaut ?' en entretien ?", o:["Dire qu'on n'en a aucun","Citer un vrai axe d'amélioration et expliquer comment on travaille dessus concrètement","Citer un défaut qui est en fait une qualité déguisée sans conviction","Changer de sujet"], a:1, e:"L'authenticité et la capacité à se remettre en question sont valorisées davantage qu'une réponse artificielle." },
+  ],
+};
+
+// Codes IATA (code -> ville/aéroport)
+const IATA_CODES = [
+  ["CDG","Paris (Charles de Gaulle)"],["ORY","Paris (Orly)"],["JFK","New York (JFK)"],
+  ["LHR","Londres (Heathrow)"],["LAX","Los Angeles"],["HND","Tokyo (Haneda)"],
+  ["NRT","Tokyo (Narita)"],["DXB","Dubaï"],["SIN","Singapour"],["HKG","Hong Kong"],
+  ["FRA","Francfort"],["AMS","Amsterdam"],["MAD","Madrid"],["FCO","Rome (Fiumicino)"],
+  ["IST","Istanbul"],["PEK","Pékin"],["PVG","Shanghai (Pudong)"],["SYD","Sydney"],
+  ["GRU","São Paulo"],["MEX","Mexico"],["YYZ","Toronto"],["ATL","Atlanta"],
+  ["ORD","Chicago (O'Hare)"],["MIA","Miami"],["BKK","Bangkok"],["DOH","Doha"],
+  ["AUH","Abou Dabi"],["ZRH","Zurich"],["VIE","Vienne"],["BCN","Barcelone"],
+  ["LIS","Lisbonne"],["DUB","Dublin"],["BRU","Bruxelles"],["MUC","Munich"],
+  ["CPT","Le Cap"],["JNB","Johannesburg"],["CAI","Le Caire"],["DEL","New Delhi"],
+  ["BOM","Mumbai"],["ICN","Séoul (Incheon)"],["KUL","Kuala Lumpur"],["MNL","Manille"],
+  ["GVA","Genève"],["NCE","Nice"],["MRS","Marseille"],["LYS","Lyon"],
+];
+
+// Capitales
+const CAPITALS = [
+  ["France","Paris"],["Allemagne","Berlin"],["Espagne","Madrid"],["Italie","Rome"],
+  ["Portugal","Lisbonne"],["Royaume-Uni","Londres"],["Irlande","Dublin"],["Belgique","Bruxelles"],
+  ["Pays-Bas","Amsterdam"],["Suisse","Berne"],["Autriche","Vienne"],["Grèce","Athènes"],
+  ["Pologne","Varsovie"],["Suède","Stockholm"],["Norvège","Oslo"],["Danemark","Copenhague"],
+  ["Finlande","Helsinki"],["Russie","Moscou"],["Turquie","Ankara"],["Ukraine","Kiev"],
+  ["États-Unis","Washington D.C."],["Canada","Ottawa"],["Mexique","Mexico"],["Brésil","Brasília"],
+  ["Argentine","Buenos Aires"],["Chili","Santiago"],["Pérou","Lima"],["Colombie","Bogotá"],
+  ["Chine","Pékin"],["Japon","Tokyo"],["Corée du Sud","Séoul"],["Inde","New Delhi"],
+  ["Thaïlande","Bangkok"],["Vietnam","Hanoï"],["Indonésie","Jakarta"],["Malaisie","Kuala Lumpur"],
+  ["Australie","Canberra"],["Nouvelle-Zélande","Wellington"],["Égypte","Le Caire"],["Maroc","Rabat"],
+  ["Afrique du Sud","Pretoria"],["Kenya","Nairobi"],["Nigeria","Abuja"],["Émirats Arabes Unis","Abou Dabi"],
+  ["Qatar","Doha"],["Arabie Saoudite","Riyad"],["Israël","Jérusalem"],["Portugal","Lisbonne"],
+];
+
+/* ============ ÉTAT ============ */
+const STORAGE_KEY = "steward-trainer-state-v1";
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return { xp:0, streak:0, lastPlayDate:null, best:{} };
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+function todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+function registerPlayToday(){
+  const t = todayStr();
+  if(state.lastPlayDate === t) return;
+  const y = new Date(); y.setDate(y.getDate()-1);
+  const yStr = `${y.getFullYear()}-${y.getMonth()+1}-${y.getDate()}`;
+  state.streak = (state.lastPlayDate === yStr) ? state.streak + 1 : 1;
+  state.lastPlayDate = t;
+  saveState();
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function buildQuizSet(catId, count){
+  if(catId === "iata"){
+    const pool = shuffle(IATA_CODES).slice(0, count);
+    return pool.map(([code,city])=>{
+      const wrong = shuffle(IATA_CODES.filter(c=>c[1]!==city)).slice(0,3).map(c=>c[1]);
+      const options = shuffle([city, ...wrong]);
+      return { q:`Quelle ville/aéroport correspond au code IATA "${code}" ?`, o:options, a:options.indexOf(city), e:`${code} correspond à ${city}.` };
+    });
+  }
+  if(catId === "capitales"){
+    const pool = shuffle(CAPITALS).slice(0, count);
+    return pool.map(([country,capital])=>{
+      const wrong = shuffle(CAPITALS.filter(c=>c[1]!==capital)).slice(0,3).map(c=>c[1]);
+      const options = shuffle([capital, ...wrong]);
+      return { q:`Quelle est la capitale de ${country} ?`, o:options, a:options.indexOf(capital), e:`La capitale de ${country} est ${capital}.` };
+    });
+  }
+  const bank = QUESTIONS[catId] || [];
+  const pool = shuffle(bank).slice(0, Math.min(count, bank.length));
+  return pool.map(item=>{
+    const correctText = item.o[item.a];
+    const options = shuffle(item.o);
+    return { q:item.q, o:options, a:options.indexOf(correctText), e:item.e };
+  });
+}
+
+/* ============ NAVIGATION ============ */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function renderHome(){
+  document.getElementById("streak-count").textContent = state.streak || 0;
+  document.getElementById("xp-count").textContent = state.xp || 0;
+  const grid = document.getElementById("cat-grid");
+  grid.innerHTML = "";
+  CATEGORIES.forEach(cat=>{
+    const best = state.best[cat.id] || 0;
+    const card = document.createElement("div");
+    card.className = "cat-card";
+    card.innerHTML = `
+      <div class="cat-icon" style="background:${cat.color}22;color:${cat.color}">${cat.icon}</div>
+      <div class="cat-body">
+        <div class="cat-title">${cat.title}</div>
+        <div class="cat-desc">${cat.desc}</div>
+        <div class="cat-progress"><div style="width:${best}%; background:${cat.color}"></div></div>
+        <div class="cat-best">${best}% de meilleur score</div>
+      </div>
+      <div class="chev">›</div>
+    `;
+    card.addEventListener("click", ()=>startQuiz(cat.id));
+    grid.appendChild(card);
+  });
+}
+
+/* ============ QUIZ ENGINE ============ */
+let quiz = null;
+
+function startQuiz(catId){
+  const cat = CATEGORIES.find(c=>c.id===catId);
+  const count = 8;
+  quiz = {
+    catId, cat,
+    items: buildQuizSet(catId, count),
+    idx: 0,
+    lives: 3,
+    correctCount: 0,
+    answered: false,
+  };
+  showScreen("screen-quiz");
+  renderQuestion();
+}
+
+function renderLives(){
+  const el = document.getElementById("quiz-lives");
+  el.innerHTML = "";
+  for(let i=0;i<3;i++){
+    el.innerHTML += i < quiz.lives ? "❤️" : "🖤";
+  }
+}
+
+function renderQuestion(){
+  quiz.answered = false;
+  const item = quiz.items[quiz.idx];
+  document.getElementById("q-cat-tag").textContent = quiz.cat.title;
+  document.getElementById("q-text").textContent = item.q;
+  document.getElementById("quiz-progress").style.width = `${Math.round((quiz.idx/quiz.items.length)*100)}%`;
+  renderLives();
+
+  const optWrap = document.getElementById("q-options");
+  optWrap.innerHTML = "";
+  item.o.forEach((optText, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.textContent = optText;
+    btn.addEventListener("click", ()=>selectOption(i));
+    optWrap.appendChild(btn);
+  });
+
+  document.getElementById("feedback-bar").classList.remove("show","correct","wrong");
+  const contBtn = document.getElementById("quiz-continue");
+  contBtn.textContent = "Valider";
+  contBtn.disabled = true;
+}
+
+function selectOption(i){
+  if(quiz.answered) return;
+  quiz.answered = true;
+  const item = quiz.items[quiz.idx];
+  const options = document.querySelectorAll(".option");
+  const isCorrect = i === item.a;
+
+  options.forEach((opt, idx)=>{
+    opt.classList.add("disabled");
+    if(idx === item.a) opt.classList.add(isCorrect ? "correct" : "reveal-correct");
+    else if(idx === i && !isCorrect) opt.classList.add("wrong");
+  });
+
+  const fb = document.getElementById("feedback-bar");
+  fb.classList.add("show", isCorrect ? "correct" : "wrong");
+  document.getElementById("fb-icon").textContent = isCorrect ? "✅" : "❌";
+  document.getElementById("fb-title").textContent = isCorrect ? "Correct !" : "Pas tout à fait";
+  document.getElementById("fb-title").className = "fb-title " + (isCorrect ? "correct" : "wrong");
+  document.getElementById("fb-text").textContent = item.e || "";
+
+  if(isCorrect){ quiz.correctCount++; }
+  else { quiz.lives--; renderLives(); }
+
+  const contBtn = document.getElementById("quiz-continue");
+  contBtn.disabled = false;
+  contBtn.textContent = (quiz.idx === quiz.items.length - 1 || quiz.lives <= 0) ? "Voir le résultat" : "Continuer";
+}
+
+document.getElementById("quiz-continue").addEventListener("click", ()=>{
+  if(!quiz.answered) return;
+  if(quiz.lives <= 0 || quiz.idx === quiz.items.length - 1){
+    finishQuiz();
+    return;
+  }
+  quiz.idx++;
+  renderQuestion();
+});
+
+document.getElementById("quiz-back").addEventListener("click", ()=>{
+  showScreen("screen-home");
+  renderHome();
+});
+
+function finishQuiz(){
+  registerPlayToday();
+  const total = quiz.items.length;
+  const scorePct = Math.round((quiz.correctCount/total)*100);
+  const earnedXp = quiz.correctCount * 10 + (scorePct === 100 ? 20 : 0);
+  state.xp = (state.xp||0) + earnedXp;
+  const prevBest = state.best[quiz.catId] || 0;
+  state.best[quiz.catId] = Math.max(prevBest, scorePct);
+  saveState();
+
+  document.getElementById("res-score").textContent = `${quiz.correctCount}/${total}`;
+  document.getElementById("res-xp").textContent = `+${earnedXp}`;
+  document.getElementById("res-best").textContent = `${state.best[quiz.catId]}%`;
+
+  let emoji = "🎉", title = "Bien joué !", sub = "Continue comme ça.";
+  if(quiz.lives <= 0){ emoji = "😵"; title = "Plus de vies !"; sub = "Retente ta chance, tu vas y arriver."; }
+  else if(scorePct === 100){ emoji = "🏆"; title = "Score parfait !"; sub = "Tu maîtrises ce sujet."; }
+  else if(scorePct >= 70){ emoji = "💪"; title = "Bon score !"; sub = "Encore un peu d'entraînement et ce sera parfait."; }
+  else { emoji = "📚"; title = "Continue de réviser"; sub = "Chaque essai te fait progresser."; }
+
+  document.getElementById("result-emoji").textContent = emoji;
+  document.getElementById("result-title").textContent = title;
+  document.getElementById("result-sub").textContent = sub;
+
+  showScreen("screen-result");
+}
+
+document.getElementById("result-retry").addEventListener("click", ()=>startQuiz(quiz.catId));
+document.getElementById("result-home").addEventListener("click", ()=>{
+  showScreen("screen-home");
+  renderHome();
+});
+
+/* ============ SAUVEGARDE / TRANSFERT ============ */
+function exportCode(){
+  // encodage base64 compact du state (unicode-safe)
+  return btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+}
+function importCode(code){
+  try{
+    const obj = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+    if(typeof obj !== "object" || obj === null || typeof obj.xp !== "number") return false;
+    state = { xp:obj.xp||0, streak:obj.streak||0, lastPlayDate:obj.lastPlayDate||null, best:obj.best||{} };
+    saveState();
+    renderHome();
+    return true;
+  }catch(e){ return false; }
+}
+
+document.getElementById("btn-export").addEventListener("click", async ()=>{
+  const code = exportCode();
+  let copied = false;
+  try{ await navigator.clipboard.writeText(code); copied = true; }catch(e){}
+  if(copied){
+    alert("Code copié dans le presse-papiers ✅\n\nColle-le sur ton autre appareil via « Restaurer un code ».");
+  }else{
+    prompt("Copie ce code de progression :", code);
+  }
+});
+
+document.getElementById("btn-import").addEventListener("click", ()=>{
+  const code = prompt("Colle ton code de progression :");
+  if(code === null || code.trim() === "") return;
+  if(importCode(code)){
+    alert("Progression restaurée ✅");
+  }else{
+    alert("Code invalide ❌ — vérifie que tu as bien copié le code en entier.");
+  }
+});
+
+/* ============ INIT ============ */
+renderHome();
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
