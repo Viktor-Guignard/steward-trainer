@@ -1,8 +1,10 @@
-const CACHE = "steward-trainer-v4";
+const CACHE = "steward-trainer-v6";
 const ASSETS = [
   "./index.html",
   "./data.js",
+  "./map.js",
   "./questions.js",
+  "./airfrance.js",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",

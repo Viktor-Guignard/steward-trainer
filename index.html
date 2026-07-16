@@ -216,6 +216,81 @@
   .flash-red{position:fixed;inset:0;background:radial-gradient(circle at 50% 60%,transparent 40%,rgba(251,113,133,.35));z-index:30;pointer-events:none;opacity:0;}
   .flash-red.on{animation:flashred .5s ease;}
   @keyframes flashred{0%{opacity:0;}30%{opacity:1;}100%{opacity:0;}}
+  /* ---------- CARTE ---------- */
+  .q-map{margin-bottom:14px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:8px;}
+  .q-map svg.mapsvg{width:100%;height:auto;display:block;border-radius:12px;}
+  .q-map .mp{fill:#274d8f;stroke:#12306b;stroke-width:.25;transition:fill .15s;}
+  .q-map.tappable .mp{cursor:pointer;}
+  .q-map.tappable .mp:hover{fill:#3a67b0;}
+  .q-map .mp.hl{fill:var(--blue);stroke:#fff;stroke-width:.5;}
+  .q-map .mp.ok{fill:var(--green);stroke:#fff;stroke-width:.6;}
+  .q-map .mp.ko{fill:var(--red);stroke:#fff;stroke-width:.6;}
+  .q-map .mp-ring{fill:none;stroke:var(--amber);stroke-width:1.4;opacity:.9;animation:ringpulse 1.2s ease-in-out infinite;}
+  @keyframes ringpulse{0%,100%{stroke-width:1.2;opacity:.7;}50%{stroke-width:2.2;opacity:1;}}
+  .map-hint{text-align:center;color:var(--muted);font-size:12.5px;font-weight:700;margin:-4px 0 10px;}
+
+  /* ---------- SAISIE CLAVIER ---------- */
+  .typed-row{display:flex;gap:10px;margin-bottom:12px;}
+  .typed-input{
+    flex:1;background:rgba(0,0,0,.25);border:2px solid rgba(255,255,255,.2);border-radius:16px;
+    padding:15px 16px;font-size:16px;font-weight:700;color:var(--text);font-family:inherit;outline:none;
+    transition:border-color .15s;
+  }
+  .typed-input:focus{border-color:var(--blue);}
+  .typed-input::placeholder{color:var(--muted);opacity:.7;font-weight:600;}
+  .typed-submit{
+    width:56px;border-radius:16px;border:none;border-bottom:4px solid var(--blue-dark);
+    background:var(--blue);color:#062c45;font-size:20px;font-weight:900;cursor:pointer;
+  }
+  .typed-submit:active{transform:translateY(2px);border-bottom-width:2px;}
+  .typed-submit:disabled{opacity:.4;pointer-events:none;}
+
+  /* ---------- MISSION DU JOUR ---------- */
+  .daily-card{
+    display:flex;align-items:center;gap:14px;margin-bottom:6px;
+    background:linear-gradient(120deg,#7c3aed,#2563eb 60%,#0ea5e9);
+    border:1px solid rgba(255,255,255,.25);border-bottom:4px solid rgba(0,0,0,.3);
+    border-radius:var(--radius);padding:16px;cursor:pointer;position:relative;overflow:hidden;
+    animation:card-in .5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .daily-card::after{
+    content:"";position:absolute;top:-60%;left:-30%;width:40%;height:220%;transform:rotate(20deg);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+    animation:shine 3.4s ease-in-out infinite;
+  }
+  @keyframes shine{0%,60%{left:-40%;}100%{left:130%;}}
+  .daily-card:active{transform:scale(.97) translateY(2px);border-bottom-width:2px;}
+  .daily-icon{font-size:32px;animation:icon-bob 2.6s ease-in-out infinite;}
+  .daily-body{flex:1;}
+  .daily-title{font-weight:900;font-size:16.5px;}
+  .daily-desc{font-size:12px;color:rgba(255,255,255,.85);font-weight:600;margin-top:1px;}
+  .daily-status{
+    font-weight:900;font-size:13px;background:rgba(255,255,255,.2);padding:8px 14px;border-radius:99px;
+    border:1px solid rgba(255,255,255,.35);letter-spacing:.05em;
+  }
+  .daily-card.done{filter:saturate(.55);opacity:.85;}
+  .daily-card.done::after{display:none;}
+
+  .review-card{border-left:5px solid var(--red);}
+
+  /* ---------- LEVEL-UP TOAST ---------- */
+  .lvlup{
+    position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.5);z-index:120;
+    background:linear-gradient(145deg,#1e4694,#2a5cb8);border:2px solid var(--amber);
+    border-radius:26px;padding:26px 40px;text-align:center;opacity:0;pointer-events:none;
+    box-shadow:0 20px 60px rgba(0,0,0,.5), 0 0 0 6px rgba(251,191,36,.18);
+  }
+  .lvlup.show{animation:lvlpop 2.6s cubic-bezier(.34,1.56,.64,1) forwards;}
+  @keyframes lvlpop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-6deg);}
+    12%{opacity:1;transform:translate(-50%,-50%) scale(1.08) rotate(2deg);}
+    18%{transform:translate(-50%,-50%) scale(1);}
+    82%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+    100%{opacity:0;transform:translate(-50%,-55%) scale(.92);}
+  }
+  .lvlup-emoji{font-size:52px;}
+  .lvlup-label{font-size:12px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-top:6px;}
+  .lvlup-name{font-size:22px;font-weight:900;margin-top:2px;}
   ::selection{background:var(--blue);color:#062c45;}
 </style>
 </head>
@@ -234,7 +309,7 @@
       </div>
     </div>
     <h1 class="page-title">Salut 👋</h1>
-    <p class="page-sub">Choisis une catégorie et un niveau. Fais des combos, garde tes cœurs !</p>
+    <p class="page-sub">Prépare ta candidature <strong style="color:#fb7185">Air France</strong> ✈️ Choisis une catégorie et un niveau, enchaîne les combos !</p>
 
     <div class="lvlbar">
       <div class="lvl-emoji" id="lvl-emoji">🧑‍✈️</div>
@@ -245,7 +320,31 @@
       <div class="lvl-num" id="lvl-num">Niv. 1</div>
     </div>
 
-    <div class="sec-label">✈️ Métier steward</div>
+    <div class="daily-card" id="daily-card">
+      <div class="daily-icon">🎯</div>
+      <div class="daily-body">
+        <div class="daily-title">Mission du jour</div>
+        <div class="daily-desc" id="daily-desc">12 questions mixtes · XP ×2</div>
+      </div>
+      <div class="daily-status" id="daily-status">GO</div>
+    </div>
+
+    <div id="review-wrap" style="display:none">
+      <div class="sec-label" style="margin-top:22px;">🩹 Révision</div>
+      <div class="cat-grid">
+        <div class="cat-card review-card" id="review-card">
+          <div class="cat-icon" style="background:#fb718522;color:#fb7185">📝</div>
+          <div class="cat-body">
+            <div class="cat-title">Mes erreurs</div>
+            <div class="cat-desc" id="review-desc">Rejoue les questions ratées jusqu'à les maîtriser</div>
+          </div>
+          <div class="cat-count" id="review-count">0</div>
+          <div class="chev">›</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-label" style="margin-top:22px;">✈️ Métier steward</div>
     <div class="cat-grid" id="grid-knowledge"></div>
     <div class="sec-label" style="margin-top:22px;">🌍 Géographie</div>
     <div class="cat-grid" id="grid-geo"></div>
@@ -272,6 +371,12 @@
       <div class="q-cat-tag"><span id="q-cat-tag"></span><span class="q-diff" id="q-diff"></span></div>
       <div class="q-text" id="q-text"></div>
       <div class="q-flag" id="q-flag" style="display:none"></div>
+    </div>
+    <div class="q-map" id="q-map" style="display:none"></div>
+    <div class="map-hint" id="map-hint" style="display:none">👆 Touche le bon pays sur la carte</div>
+    <div class="typed-row" id="typed-row" style="display:none">
+      <input type="text" id="typed-input" class="typed-input" placeholder="Tape ta réponse…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" />
+      <button class="typed-submit" id="typed-submit">➤</button>
     </div>
     <div class="options" id="q-options"></div>
     <div class="feedback-bar" id="feedback-bar">
@@ -316,14 +421,24 @@
       <button class="diff-btn d-moyen" data-diff="moyen"><span class="d-emoji">🟡</span><span><div>Moyen</div><div class="d-sub">Niveau formation PNC</div></span></button>
       <button class="diff-btn d-difficile" data-diff="difficile"><span class="d-emoji">🔴</span><span><div>Difficile</div><div class="d-sub">Niveau examen / expert</div></span></button>
       <button class="diff-btn d-mix" data-diff="mix"><span class="d-emoji">🎲</span><span><div>Mélange</div><div class="d-sub">Tous niveaux au hasard</div></span></button>
+      <button class="diff-btn d-saisie" data-diff="saisie" id="diff-saisie" style="display:none;border-left:5px solid var(--blue)"><span class="d-emoji">⌨️</span><span><div>Saisie (expert)</div><div class="d-sub">Tape la réponse toi-même · +50% XP</div></span></button>
     </div>
   </div>
 </div>
 
 <div class="flash-red" id="flash-red"></div>
 
+<!-- LEVEL-UP TOAST -->
+<div class="lvlup" id="lvlup">
+  <div class="lvlup-emoji" id="lvlup-emoji">🎖️</div>
+  <div class="lvlup-label">Nouveau rang !</div>
+  <div class="lvlup-name" id="lvlup-name">Steward junior</div>
+</div>
+
 <script src="./data.js"></script>
+<script src="./map.js"></script>
 <script src="./questions.js"></script>
+<script src="./airfrance.js"></script>
 <script>
 /* ================= SON (Web Audio, synthétisé, hors-ligne) ================= */
 const Sound = (function(){
@@ -359,6 +474,8 @@ const Sound = (function(){
     win(){ seq([{f:523,t:0,d:.14},{f:659,t:.12,d:.14},{f:784,t:.24,d:.14},{f:1047,t:.36,d:.3,v:.34}]); },
     perfect(){ seq([{f:523,t:0,d:.12},{f:659,t:.1,d:.12},{f:784,t:.2,d:.12},{f:1047,t:.3,d:.14},{f:1319,t:.42,d:.14},{f:1568,t:.54,d:.34,v:.34}]); },
     fail(){ seq([{f:392,t:0,d:.18,type:"sawtooth",v:.2,g:330},{f:294,t:.16,d:.3,type:"sawtooth",v:.2,g:196}]); },
+    levelup(){ seq([{f:392,t:0,d:.12},{f:523,t:.1,d:.12},{f:659,t:.2,d:.12},{f:784,t:.3,d:.2,v:.32},{f:659,t:.5,d:.1},{f:784,t:.58,d:.14},{f:1047,t:.68,d:.4,v:.36}]); },
+    keytap(){ if(muted||!ensure())return; note(700,ctx.currentTime,0.03,"sine",0.06); },
   };
 })();
 function haptic(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
@@ -369,6 +486,7 @@ const KB = DATA.KNOWLEDGE || {};
 function flag(iso){ return (iso||"").toUpperCase().replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0))); }
 
 const KNOWLEDGE_CATS = [
+  {id:"airfrance", title:"Spécial Air France", desc:"Flotte, hubs, SkyTeam, exigences PNC", icon:"🇫🇷", color:"#e11d48"},
   {id:"securite", title:"Sécurité & urgences", desc:"Évacuation, oxygène, feux, toboggans", icon:"🛟", color:"#fb7185"},
   {id:"reglementation", title:"Réglementation", desc:"IATA/OACI, bagages, EU261, DGR", icon:"📋", color:"#38bdf8"},
   {id:"service", title:"Service & clients", desc:"Cabine, repas, passagers difficiles", icon:"🍽️", color:"#fbbf24"},
@@ -383,8 +501,10 @@ const KNOWLEDGE_CATS = [
   {id:"geo-culture", title:"Cultures du monde", desc:"Coutumes, savoir-vivre, monnaies", icon:"🌐", color:"#fb923c"},
 ];
 const GEO_CATS = [
+  {id:"carte", title:"Carte : situer un pays", desc:"Touche le bon pays sur la carte", icon:"🗺️", color:"#22d3ee", gen:"maptap"},
+  {id:"carte-nom", title:"Carte : quel pays ?", desc:"Un pays surligné → devine lequel", icon:"📌", color:"#38bdf8", gen:"mapname"},
   {id:"capitales", title:"Capitales du monde", desc:"Trouve la capitale du pays", icon:"🏛️", color:"#ec4899", gen:"capital"},
-  {id:"pays", title:"Trouve le pays", desc:"Quel pays a cette capitale ?", icon:"📍", color:"#22d3ee", gen:"country"},
+  {id:"pays", title:"Trouve le pays", desc:"Quel pays a cette capitale ?", icon:"📍", color:"#a3e635", gen:"country"},
   {id:"drapeaux", title:"Drapeaux", desc:"Reconnais le drapeau", icon:"🚩", color:"#f43f5e", gen:"flag"},
   {id:"continents", title:"Continents", desc:"Sur quel continent ?", icon:"🗺️", color:"#4ade80", gen:"continent"},
   {id:"monnaies", title:"Monnaies", desc:"La monnaie de chaque pays", icon:"💰", color:"#facc15", gen:"currency"},
@@ -392,12 +512,13 @@ const GEO_CATS = [
 ];
 const ALL_CATS = {};
 [...KNOWLEDGE_CATS, ...GEO_CATS].forEach(c=>ALL_CATS[c.id]=c);
-const DIFF_LABEL = {facile:"Facile", moyen:"Moyen", difficile:"Difficile", mix:"Mélange"};
+const DIFF_LABEL = {facile:"Facile", moyen:"Moyen", difficile:"Difficile", mix:"Mélange", saisie:"Saisie ⌨️", daily:"Mission du jour", revision:"Révision"};
+const TYPABLE_GENS = new Set(["capital","country","flag","iata"]);
 
 /* ================= ÉTAT ================= */
 const STORAGE_KEY = "steward-trainer-state-v1";
 let state = loadState();
-function loadState(){ try{ const r=localStorage.getItem(STORAGE_KEY); if(r) return JSON.parse(r); }catch(e){} return {xp:0,streak:0,lastPlayDate:null,best:{},muted:false}; }
+function loadState(){ try{ const r=localStorage.getItem(STORAGE_KEY); if(r) return JSON.parse(r); }catch(e){} return {xp:0,streak:0,lastPlayDate:null,best:{},muted:false,errors:[],dailyDone:null}; }
 function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 Sound.setMuted(!!state.muted);
 
@@ -408,8 +529,61 @@ function registerPlayToday(){
   const yStr=`${y.getFullYear()}-${y.getMonth()+1}-${y.getDate()}`;
   state.streak=(state.lastPlayDate===yStr)?state.streak+1:1; state.lastPlayDate=t; saveState();
 }
-function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+let RAND=Math.random;
+function seededRand(str){ let h=1779033703^str.length; for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19);} return function(){h=Math.imul(h^(h>>>16),2246822507);h=Math.imul(h^(h>>>13),3266489909);return ((h^=h>>>16)>>>0)/4294967296;}; }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(RAND()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function pick(a,n){ return shuffle(a).slice(0,n); }
+
+/* ---- Correspondance tolérante pour le mode saisie ---- */
+const TYPED_ALIASES={ "usa":"etats unis","u s a":"etats unis","etats unis amerique":"etats unis","uk":"royaume uni","grande bretagne":"royaume uni","angleterre":"royaume uni","hollande":"pays bas","birmanie":"myanmar","washington dc":"washington","washington d c":"washington","pekin":"pekin","beijing":"pekin","emirats":"emirats arabes unis","eau":"emirats arabes unis","new york city":"new york","corse":"france" };
+function normTyped(s){
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")
+    .replace(/[''´`’\-–—.,;:!?()\/]/g," ")
+    .replace(/\b(le|la|les|l|de|du|des|d|the)\b/g," ")
+    .replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+}
+function lev(a,b){
+  if(a===b) return 0;
+  const m=a.length,n=b.length;
+  if(!m||!n) return m||n;
+  let prev=Array.from({length:n+1},(_,j)=>j), cur=new Array(n+1);
+  for(let i=1;i<=m;i++){ cur[0]=i;
+    for(let j=1;j<=n;j++){ cur[j]=Math.min(prev[j]+1, cur[j-1]+1, prev[j-1]+(a[i-1]===b[j-1]?0:1)); }
+    [prev,cur]=[cur,prev];
+  }
+  return prev[n];
+}
+function typedMatch(input, answer){
+  let a=normTyped(input), b=normTyped(answer);
+  if(TYPED_ALIASES[a]) a=TYPED_ALIASES[a];
+  if(TYPED_ALIASES[b]) b=TYPED_ALIASES[b];
+  if(!a||!b) return false;
+  if(a===b) return true;
+  const tol = b.length>=8?2 : b.length>=5?1 : 0;
+  if(lev(a,b)<=tol) return true;
+  // l'utilisateur a tapé plus que nécessaire ("washington dc etats unis") : tous les mots de la réponse présents
+  const at=a.split(" "), bt=b.split(" ");
+  if(bt.every(w=>at.some(x=>x===w||(w.length>=5&&lev(x,w)<=1)))) return true;
+  return false;
+}
+
+/* ---- Suivi des erreurs (mode révision) ---- */
+function errKey(item){ return (item.q||"").trim().toLowerCase(); }
+function pushError(item){
+  state.errors=state.errors||[];
+  const k=errKey(item);
+  if(!k || state.errors.some(e=>errKey(e.item)===k)) return;
+  const snap={ q:item.q, o:item.o, a:item.a, e:item.e, flag:item.flag, type:item.type, iso:item.iso, typedAnswer:item.typedAnswer };
+  state.errors.push({ catId:(quiz&&quiz.cat&&quiz.cat.id)||"?", title:(quiz&&quiz.cat&&quiz.cat.title)||"", item:snap });
+  if(state.errors.length>300) state.errors=state.errors.slice(-300);
+  saveState();
+}
+function removeError(item){
+  if(!state.errors) return;
+  const k=errKey(item);
+  state.errors=state.errors.filter(e=>errKey(e.item)!==k);
+  saveState();
+}
 
 /* Niveaux (gamification XP) */
 const LEVELS=[[0,"Élève PNC","🧑‍🎓"],[150,"Stagiaire cabine","🧑‍✈️"],[400,"Steward junior","💺"],[800,"Steward confirmé","✈️"],[1400,"Chef de cabine","🎖️"],[2200,"Instructeur","👨‍🏫"],[3200,"Commandant d'équipage","🏆"]];
@@ -436,6 +610,17 @@ function renderHome(){
   document.getElementById("lvl-num").textContent = "Niv. "+(li.i+1);
   document.getElementById("lvl-fill").style.width = li.pct+"%";
   document.getElementById("btn-mute").textContent = state.muted ? "🔇" : "🔊";
+
+  const dailyDone = state.dailyDone===todayStr();
+  const dc=document.getElementById("daily-card");
+  dc.classList.toggle("done", dailyDone);
+  document.getElementById("daily-status").textContent = dailyDone ? "✅ FAIT" : "GO";
+  document.getElementById("daily-desc").textContent = dailyDone ? "Terminée ! Reviens demain pour ta série 🔥" : "12 questions mixtes · XP ×2";
+
+  const nErr=(state.errors||[]).length;
+  document.getElementById("review-wrap").style.display = nErr>0 ? "block" : "none";
+  document.getElementById("review-count").textContent = nErr+" Q";
+  document.getElementById("review-desc").textContent = nErr>0 ? `${nErr} question${nErr>1?"s":""} ratée${nErr>1?"s":""} à maîtriser` : "";
 
   const build=(cats, el)=>{
     el.innerHTML="";
@@ -471,6 +656,7 @@ function openSheet(cat){
   document.getElementById("sheet-icon").textContent=cat.icon;
   document.getElementById("sheet-title").textContent=cat.title;
   document.getElementById("sheet-sub").textContent="Choisis ton niveau";
+  document.getElementById("diff-saisie").style.display = TYPABLE_GENS.has(cat.gen) ? "flex" : "none";
   document.getElementById("sheet-backdrop").classList.add("show");
 }
 function closeSheet(){ document.getElementById("sheet-backdrop").classList.remove("show"); }
@@ -502,11 +688,11 @@ function buildGeo(gen, diff, count){
     return pick(pool,3).map(y=>y[key]);
   };
   if(gen==="capital"){
-    src.forEach(x=>{ const w=distract(C,"cap",x.cap,"c",x.c); const o=shuffle([x.cap,...w]); out.push({q:`Quelle est la capitale de ce pays : ${x.n} ?`,o,a:o.indexOf(x.cap),e:`${x.n} → ${x.cap}.`}); });
+    src.forEach(x=>{ const w=distract(C,"cap",x.cap,"c",x.c); const o=shuffle([x.cap,...w]); out.push({q:`Quelle est la capitale de ce pays : ${x.n} ?`,o,a:o.indexOf(x.cap),e:`${x.n} → ${x.cap}.`,typedAnswer:x.cap}); });
   } else if(gen==="country"){
-    src.forEach(x=>{ const w=distract(C,"n",x.n,"c",x.c); const o=shuffle([x.n,...w]); out.push({q:`Quel pays a pour capitale ${x.cap} ?`,o,a:o.indexOf(x.n),e:`${x.cap} est la capitale de ${x.n}.`}); });
+    src.forEach(x=>{ const w=distract(C,"n",x.n,"c",x.c); const o=shuffle([x.n,...w]); out.push({q:`Quel pays a pour capitale ${x.cap} ?`,o,a:o.indexOf(x.n),e:`${x.cap} est la capitale de ${x.n}.`,typedAnswer:x.n}); });
   } else if(gen==="flag"){
-    src.forEach(x=>{ const w=distract(C,"n",x.n,"c",x.c); const o=shuffle([x.n,...w]); out.push({q:`Quel pays a ce drapeau ?`,flag:flag(x.iso),o,a:o.indexOf(x.n),e:`${flag(x.iso)} = ${x.n}.`}); });
+    src.forEach(x=>{ const w=distract(C,"n",x.n,"c",x.c); const o=shuffle([x.n,...w]); out.push({q:`Quel pays a ce drapeau ?`,flag:flag(x.iso),o,a:o.indexOf(x.n),e:`${flag(x.iso)} = ${x.n}.`,typedAnswer:x.n}); });
   } else if(gen==="continent"){
     const conts=["Europe","Asie","Afrique","Amérique du Nord","Amérique du Sud","Océanie"];
     src.forEach(x=>{ const w=pick(conts.filter(c=>c!==x.c),3); const o=shuffle([x.c,...w]); out.push({q:`Sur quel continent se trouve : ${x.n} ?`,o,a:o.indexOf(x.c),e:`${x.n} → ${x.c}.`}); });
@@ -518,23 +704,76 @@ function buildGeo(gen, diff, count){
       if(i%2===0){ // code -> ville
         let pool=A.filter(y=>y.city!==x.city); if(hard){ const same=pool.filter(y=>y.country===x.country); if(same.length>=3) pool=same; }
         const seen=new Set([x.city]); const w=[]; shuffle(pool).forEach(y=>{ if(w.length<3&&!seen.has(y.city)){seen.add(y.city);w.push(y.city);} });
-        const o=shuffle([x.city,...w]); out.push({q:`À quelle ville correspond le code IATA « ${x.code} » ?`,o,a:o.indexOf(x.city),e:`${x.code} = ${x.city} (${x.country}).`});
+        const o=shuffle([x.city,...w]); out.push({q:`À quelle ville correspond le code IATA « ${x.code} » ?`,o,a:o.indexOf(x.city),e:`${x.code} = ${x.city} (${x.country}).`,typedAnswer:x.city});
       } else { // code -> pays
         let pool=A.filter(y=>y.country!==x.country); const seen=new Set([x.country]); const w=[]; shuffle(pool).forEach(y=>{ if(w.length<3&&!seen.has(y.country)){seen.add(y.country);w.push(y.country);} });
-        const o=shuffle([x.country,...w]); out.push({q:`Dans quel pays se trouve l'aéroport « ${x.code} » (${x.city}) ?`,o,a:o.indexOf(x.country),e:`${x.code} = ${x.city}, ${x.country}.`});
+        const o=shuffle([x.country,...w]); out.push({q:`Dans quel pays se trouve l'aéroport « ${x.code} » (${x.city}) ?`,o,a:o.indexOf(x.country),e:`${x.code} = ${x.city}, ${x.country}.`,typedAnswer:x.country});
       }
     });
+  } else if(gen==="maptap"){
+    const M=window.STEWARD_MAP;
+    let pool=C.filter(c=> M && M.items[c.iso] && M.items[c.iso].a >= (hard?4:9));
+    shuffle(pool).slice(0,count).forEach(x=>{ out.push({type:"maptap", iso:x.iso, q:`Où se trouve : ${x.n} ?`, e:`${x.n} se situe en ${x.c}.`}); });
+  } else if(gen==="mapname"){
+    const M=window.STEWARD_MAP;
+    let pool=C.filter(c=> M && M.items[c.iso]);
+    shuffle(pool).slice(0,count).forEach(x=>{ const w=distract(C,"n",x.n,"c",x.c); const o=shuffle([x.n,...w]); out.push({type:"mapname", iso:x.iso, q:`Quel est le pays surligné sur la carte ?`, o, a:o.indexOf(x.n), e:`Il s'agit de ${x.n} (${x.c}).`}); });
   }
   return out;
+}
+
+/* ================= RENDU CARTE ================= */
+function renderMap(container, opts){
+  const M=window.STEWARD_MAP;
+  if(!M){ container.innerHTML="<div style='color:var(--muted);padding:20px;text-align:center'>Carte indisponible</div>"; return; }
+  let paths="";
+  for(const iso in M.items){
+    const hl = opts.highlightIso===iso;
+    paths+=`<path data-iso="${iso}" d="${M.items[iso].d}" class="mp${hl?' hl':''}"></path>`;
+  }
+  let extra="";
+  if(opts.highlightIso && M.items[opts.highlightIso]){ const c=M.items[opts.highlightIso].c; extra=`<circle cx="${c[0]}" cy="${c[1]}" r="7" class="mp-ring"></circle>`; }
+  container.className="q-map"+(opts.tappable?" tappable":"");
+  container.innerHTML=`<svg viewBox="${M.viewBox}" class="mapsvg" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">${paths}${extra}</svg>`;
+  if(opts.tappable){ container.querySelectorAll("path").forEach(p=>{ p.addEventListener("click",(e)=>opts.onTap(p.getAttribute("data-iso"), e)); }); }
 }
 
 /* ================= MOTEUR DE QUIZ ================= */
 let quiz=null;
 const MAX_LIVES=5;
 function startQuiz(cat, diff){
-  const items = cat.gen ? buildGeo(cat.gen, diff, QUIZ_LEN) : buildKnowledge(cat.id, diff, QUIZ_LEN);
+  const typed = diff==="saisie";
+  const items = cat.gen ? buildGeo(cat.gen, typed?"moyen":diff, QUIZ_LEN) : buildKnowledge(cat.id, diff, QUIZ_LEN);
   if(!items.length){ alert("Cette catégorie n'a pas encore de questions. Reviens bientôt !"); return; }
-  quiz={cat, diff, items, idx:0, lives:MAX_LIVES, correctCount:0, combo:0, maxCombo:0, answered:false};
+  quiz={cat, diff, items, idx:0, lives:MAX_LIVES, correctCount:0, combo:0, maxCombo:0, answered:false, typed};
+  showScreen("screen-quiz"); renderQuestion(true);
+}
+function remapItem(snap){
+  // re-mélange les options d'un item mémorisé (mode révision)
+  if(!snap.o){ return {...snap}; }
+  const correct=snap.o[snap.a];
+  const o=shuffle(snap.o);
+  return {...snap, o, a:o.indexOf(correct)};
+}
+function startReview(){
+  const errs=shuffle(state.errors||[]).slice(0,QUIZ_LEN);
+  if(!errs.length) return;
+  const items=errs.map(e=>remapItem(e.item));
+  quiz={cat:{id:"revision",title:"Révision des erreurs",icon:"📝",color:"#fb7185"}, diff:"revision", items, idx:0, lives:MAX_LIVES, correctCount:0, combo:0, maxCombo:0, answered:false, review:true};
+  showScreen("screen-quiz"); renderQuestion(true);
+}
+function startDaily(){
+  const seed="daily-"+todayStr();
+  RAND=seededRand(seed);
+  const kcats=shuffle(KNOWLEDGE_CATS.filter(c=>(KB[c.id]||[]).length>=6)).slice(0,2);
+  let items=[];
+  kcats.forEach(c=>{ items.push(...buildKnowledge(c.id,"mix",3).map(it=>({...it,_cat:c.title}))); });
+  items.push(...buildGeo("capital","moyen",2));
+  items.push(...buildGeo("flag","moyen",2));
+  items.push(...buildGeo("maptap","moyen",2));
+  items=shuffle(items);
+  RAND=Math.random;
+  quiz={cat:{id:"daily",title:"Mission du jour",icon:"🎯",color:"#8b5cf6"}, diff:"daily", items, idx:0, lives:MAX_LIVES, correctCount:0, combo:0, maxCombo:0, answered:false, daily:true};
   showScreen("screen-quiz"); renderQuestion(true);
 }
 function renderLives(){
@@ -554,44 +793,86 @@ function renderQuestion(first){
   document.getElementById("quiz-plane").style.left=pct+"%";
   renderLives();
   const card=document.getElementById("q-card"); card.classList.remove("slide"); void card.offsetWidth; card.classList.add("slide");
-  const wrap=document.getElementById("q-options"); wrap.innerHTML="";
-  item.o.forEach((txt,i)=>{ const b=document.createElement("button"); b.className="option"; b.textContent=txt; b.addEventListener("click",(e)=>selectOption(i,e)); wrap.appendChild(b); });
+
+  const mapEl=document.getElementById("q-map"), hintEl=document.getElementById("map-hint"), wrap=document.getElementById("q-options"), typedEl=document.getElementById("typed-row");
+  wrap.innerHTML="";
+  const isMap = item.type==="maptap" || item.type==="mapname";
+  if(isMap){
+    mapEl.style.display="block";
+    renderMap(mapEl, { highlightIso: item.type==="mapname"?item.iso:null, tappable: item.type==="maptap", onTap:(iso,ev)=>onMapTap(iso,ev) });
+  } else { mapEl.style.display="none"; mapEl.innerHTML=""; }
+
+  if(quiz.typed && item.typedAnswer){
+    hintEl.style.display="none"; wrap.style.display="none"; typedEl.style.display="flex";
+    const inp=document.getElementById("typed-input"); inp.value=""; inp.disabled=false;
+    document.getElementById("typed-submit").disabled=false;
+  } else if(item.type==="maptap"){
+    typedEl.style.display="none"; hintEl.style.display="block"; wrap.style.display="none";
+  } else {
+    typedEl.style.display="none"; hintEl.style.display="none"; wrap.style.display="flex";
+    if(item.o){ item.o.forEach((txt,i)=>{ const b=document.createElement("button"); b.className="option"; b.textContent=txt; b.addEventListener("click",(e)=>selectOption(i,e)); wrap.appendChild(b); }); }
+  }
   document.getElementById("feedback-bar").classList.remove("show","correct","wrong");
   const c=document.getElementById("quiz-continue"); c.textContent="Valider"; c.disabled=true;
   document.getElementById("combo-badge").classList.remove("show");
+}
+function applyAnswer(ok, ev, revealText){
+  const item=quiz.items[quiz.idx];
+  const fb=document.getElementById("feedback-bar");
+  fb.classList.add("show", ok?"correct":"wrong");
+  document.getElementById("fb-icon").textContent = ok?["✅","🎯","👏","💪"][Math.floor(Math.random()*4)]:"❌";
+  document.getElementById("fb-title").textContent = ok?"Correct !":"Pas tout à fait";
+  document.getElementById("fb-title").className="fb-title "+(ok?"correct":"wrong");
+  document.getElementById("fb-text").textContent=(revealText?revealText+" ":"")+(item.e||"");
+  if(ok){
+    quiz.correctCount++; quiz.combo++; quiz.maxCombo=Math.max(quiz.maxCombo,quiz.combo);
+    Sound.correct(); haptic(12);
+    if(quiz.combo>=2){ const cb=document.getElementById("combo-badge"); cb.textContent=`🔥 Combo x${quiz.combo}`; cb.classList.remove("show"); void cb.offsetWidth; cb.classList.add("show"); Sound.combo(quiz.combo); }
+    floatXP("+"+((quiz.typed?15:10)+Math.max(0,(quiz.combo-1))*2), ev); smallBurst(ev);
+    if(quiz.review) removeError(item);
+  } else {
+    quiz.combo=0; quiz.lives--; renderLives();
+    const hearts=document.querySelectorAll("#quiz-lives .heart"); if(hearts[quiz.lives]) hearts[quiz.lives].classList.add("lost");
+    Sound.wrong(); Sound.heart(); haptic([20,40,20]);
+    const sl=document.getElementById("shakeLayer"); sl.classList.remove("shake"); void sl.offsetWidth; sl.classList.add("shake");
+    const fr=document.getElementById("flash-red"); fr.classList.remove("on"); void fr.offsetWidth; fr.classList.add("on");
+    if(!quiz.review) pushError(item);
+  }
+  const c=document.getElementById("quiz-continue"); c.disabled=false;
+  c.textContent=(quiz.idx===quiz.items.length-1||quiz.lives<=0)?"Voir le résultat":"Continuer";
 }
 function selectOption(i,ev){
   if(quiz.answered) return; quiz.answered=true;
   const item=quiz.items[quiz.idx];
   const options=document.querySelectorAll(".option");
   const ok = i===item.a;
-  // ripple
-  if(ev){ const b=ev.currentTarget, r=document.createElement("span"); r.className="ripple"; const rect=b.getBoundingClientRect(); const d=Math.max(rect.width,rect.height); r.style.width=r.style.height=d+"px"; r.style.left=(ev.clientX-rect.left-d/2)+"px"; r.style.top=(ev.clientY-rect.top-d/2)+"px"; b.appendChild(r); setTimeout(()=>r.remove(),500); }
+  if(ev&&ev.currentTarget){ const b=ev.currentTarget, r=document.createElement("span"); r.className="ripple"; const rect=b.getBoundingClientRect(); const d=Math.max(rect.width,rect.height); r.style.width=r.style.height=d+"px"; r.style.left=(ev.clientX-rect.left-d/2)+"px"; r.style.top=(ev.clientY-rect.top-d/2)+"px"; b.appendChild(r); setTimeout(()=>r.remove(),500); }
   options.forEach((opt,idx)=>{ opt.classList.add("disabled"); if(idx===item.a) opt.classList.add(ok?"correct":"reveal-correct"); else if(idx===i&&!ok) opt.classList.add("wrong"); });
-
-  const fb=document.getElementById("feedback-bar");
-  fb.classList.add("show", ok?"correct":"wrong");
-  document.getElementById("fb-icon").textContent = ok?["✅","🎯","👏","💪"][Math.floor(Math.random()*4)]:"❌";
-  document.getElementById("fb-title").textContent = ok?"Correct !":"Pas tout à fait";
-  document.getElementById("fb-title").className="fb-title "+(ok?"correct":"wrong");
-  document.getElementById("fb-text").textContent=item.e||"";
-
-  if(ok){
-    quiz.correctCount++; quiz.combo++; quiz.maxCombo=Math.max(quiz.maxCombo,quiz.combo);
-    Sound.correct(); haptic(12);
-    if(quiz.combo>=2){ const cb=document.getElementById("combo-badge"); cb.textContent=`🔥 Combo x${quiz.combo}`; cb.classList.remove("show"); void cb.offsetWidth; cb.classList.add("show"); Sound.combo(quiz.combo); }
-    const bonus = Math.max(0,(quiz.combo-1))*2;
-    floatXP("+"+(10+bonus), ev);
-    smallBurst(ev);
-  } else {
-    quiz.combo=0; quiz.lives--; renderLives();
-    const hearts=document.querySelectorAll("#quiz-lives .heart"); if(hearts[quiz.lives]) hearts[quiz.lives].classList.add("lost");
-    Sound.wrong(); Sound.heart(); haptic([20,40,20]);
-    document.getElementById("shakeLayer").classList.remove("shake"); void document.getElementById("shakeLayer").offsetWidth; document.getElementById("shakeLayer").classList.add("shake");
-    const fr=document.getElementById("flash-red"); fr.classList.remove("on"); void fr.offsetWidth; fr.classList.add("on");
-  }
-  const c=document.getElementById("quiz-continue"); c.disabled=false;
-  c.textContent=(quiz.idx===quiz.items.length-1||quiz.lives<=0)?"Voir le résultat":"Continuer";
+  applyAnswer(ok, ev);
+}
+function onMapTap(iso, ev){
+  if(quiz.answered) return; quiz.answered=true;
+  const item=quiz.items[quiz.idx];
+  const ok = iso===item.iso;
+  const mapEl=document.getElementById("q-map");
+  mapEl.classList.remove("tappable");
+  const correctPath=mapEl.querySelector('path[data-iso="'+item.iso+'"]'); if(correctPath) correctPath.classList.add("ok");
+  if(!ok){ const tapped=mapEl.querySelector('path[data-iso="'+iso+'"]'); if(tapped) tapped.classList.add("ko"); }
+  const M=window.STEWARD_MAP, c=M&&M.items[item.iso]&&M.items[item.iso].c, svg=mapEl.querySelector("svg");
+  if(c&&svg){ const ring=document.createElementNS("http://www.w3.org/2000/svg","circle"); ring.setAttribute("cx",c[0]); ring.setAttribute("cy",c[1]); ring.setAttribute("r","7"); ring.setAttribute("class","mp-ring"); svg.appendChild(ring); }
+  document.getElementById("map-hint").style.display="none";
+  applyAnswer(ok, ev);
+}
+function submitTyped(){
+  if(quiz.answered) return;
+  const inp=document.getElementById("typed-input");
+  const val=inp.value.trim();
+  if(!val) return;
+  quiz.answered=true;
+  inp.disabled=true; document.getElementById("typed-submit").disabled=true;
+  const item=quiz.items[quiz.idx];
+  const ok=typedMatch(val, item.typedAnswer);
+  applyAnswer(ok, null, ok?null:`Réponse : ${item.typedAnswer}.`);
 }
 function floatXP(txt, ev){
   const el=document.createElement("div"); el.className="float-xp"; el.textContent=txt;
@@ -614,18 +895,36 @@ document.getElementById("quiz-continue").addEventListener("click",()=>{
   quiz.idx++; renderQuestion();
 });
 document.getElementById("quiz-back").addEventListener("click",()=>{ Sound.tap(); showScreen("screen-home"); renderHome(); });
+document.getElementById("typed-submit").addEventListener("click",()=>submitTyped());
+document.getElementById("typed-input").addEventListener("keydown",(e)=>{ if(e.key==="Enter"){ e.preventDefault(); submitTyped(); } else { Sound.keytap(); } });
+document.getElementById("daily-card").addEventListener("click",()=>{ Sound.unlock(); Sound.select(); haptic(10); startDaily(); });
+document.getElementById("review-card").addEventListener("click",()=>{ Sound.unlock(); Sound.select(); haptic(10); startReview(); });
 
 function finishQuiz(){
   registerPlayToday();
   const total=quiz.items.length, done=quiz.correctCount;
   const scorePct=Math.round((done/total)*100);
-  const earnedXp = done*10 + quiz.maxCombo*3 + (scorePct===100?25:0);
+  const base = quiz.typed?15:10;
+  let earnedXp = done*base + quiz.maxCombo*3 + (scorePct===100?25:0);
+  if(quiz.daily){ earnedXp*=2; state.dailyDone=todayStr(); }
+  const prevLvl=levelInfo(state.xp||0).i;
   state.xp=(state.xp||0)+earnedXp;
-  state.best[quiz.cat.id]=Math.max(state.best[quiz.cat.id]||0, scorePct);
+  if(quiz.cat.id!=="revision" && quiz.cat.id!=="daily"){
+    state.best[quiz.cat.id]=Math.max(state.best[quiz.cat.id]||0, scorePct);
+  }
   saveState();
+  const newLvl=levelInfo(state.xp);
+  if(newLvl.i>prevLvl){
+    setTimeout(()=>{
+      document.getElementById("lvlup-emoji").textContent=newLvl.emoji;
+      document.getElementById("lvlup-name").textContent=newLvl.name;
+      const t=document.getElementById("lvlup"); t.classList.remove("show"); void t.offsetWidth; t.classList.add("show");
+      Sound.levelup(); haptic([30,60,30,60,80]); launchConfetti(30);
+    }, 700);
+  }
   document.getElementById("res-score").textContent=`${done}/${total}`;
   document.getElementById("res-xp").textContent=`+${earnedXp}`;
-  document.getElementById("res-best").textContent=`${state.best[quiz.cat.id]}%`;
+  document.getElementById("res-best").textContent=`${state.best[quiz.cat.id]!=null?state.best[quiz.cat.id]:scorePct}%`;
   const nStars = scorePct>=90?3 : scorePct>=60?2 : scorePct>=30?1 : 0;
   const stEls=document.querySelectorAll("#result-stars .st");
   stEls.forEach((s,i)=>{ s.classList.remove("on"); if(i<nStars) setTimeout(()=>s.classList.add("on"),0); });
@@ -657,7 +956,7 @@ function exportCode(){ return btoa(unescape(encodeURIComponent(JSON.stringify(st
 function importCode(code){
   try{ const o=JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
     if(typeof o!=="object"||o===null||typeof o.xp!=="number") return false;
-    state={xp:o.xp||0,streak:o.streak||0,lastPlayDate:o.lastPlayDate||null,best:o.best||{},muted:!!o.muted};
+    state={xp:o.xp||0,streak:o.streak||0,lastPlayDate:o.lastPlayDate||null,best:o.best||{},muted:!!o.muted,errors:Array.isArray(o.errors)?o.errors:[],dailyDone:o.dailyDone||null};
     Sound.setMuted(!!state.muted); saveState(); renderHome(); return true;
   }catch(e){ return false; }
 }
