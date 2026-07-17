@@ -1,4 +1,4 @@
-const CACHE = "steward-trainer-v6";
+const CACHE = "steward-trainer-v7";
 const ASSETS = [
   "./index.html",
   "./data.js",
