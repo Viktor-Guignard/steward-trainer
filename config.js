@@ -16,6 +16,6 @@
    local (sans compte, progression sur l'appareil uniquement).
    ========================================================================= */
 window.STEWARD_CONFIG = {
-  SUPABASE_URL: "",   // ← à compléter : https://xxxxx.supabase.co
+  SUPABASE_URL: "https://duevcywvjotavhbpqhkq.supabase.co",
   SUPABASE_ANON_KEY: "sb_publishable_ktxPu8ogMFIJX-euSgn94w_YFOxUQeA",
 };
