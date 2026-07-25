@@ -273,6 +273,15 @@
 
   .review-card{border-left:5px solid var(--red);}
 
+  /* ---------- COMPTE ---------- */
+  .acct-msg{
+    margin:12px 2px 0;padding:11px 13px;border-radius:13px;font-size:13px;font-weight:700;line-height:1.4;
+  }
+  .acct-msg.err{background:rgba(251,113,133,.16);border:1px solid rgba(251,113,133,.4);color:#fecdd3;}
+  .acct-msg.ok{background:rgba(52,211,153,.16);border:1px solid rgba(52,211,153,.4);color:#a7f3d0;}
+  .acct-msg.info{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.18);color:var(--muted);}
+  .icon-btn.synced{color:var(--green);}
+
   /* ---------- LEVEL-UP TOAST ---------- */
   .lvlup{
     position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.5);z-index:120;
@@ -306,6 +315,7 @@
         <div class="stat-pill streak">🔥 <span id="streak-count">0</span></div>
         <div class="stat-pill xp">⭐ <span id="xp-count">0</span></div>
         <div class="icon-btn" id="btn-mute" title="Son">🔊</div>
+        <div class="icon-btn" id="btn-account" title="Compte">👤</div>
       </div>
     </div>
     <h1 class="page-title">Salut 👋</h1>
@@ -426,6 +436,43 @@
   </div>
 </div>
 
+<!-- ACCOUNT SHEET -->
+<div class="sheet-backdrop" id="acct-backdrop">
+  <div class="sheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
+      <div class="sheet-icon" id="acct-icon" style="background:#38bdf822;color:#38bdf8">👤</div>
+      <div><div class="sheet-title" id="acct-title">Mon compte</div><div class="sheet-sub" id="acct-sub">Synchronise ta progression</div></div>
+    </div>
+
+    <!-- connecté -->
+    <div id="acct-in" style="display:none">
+      <p class="sync-hint" style="text-align:left;margin:14px 2px 4px">Connecté en tant que <strong id="acct-email"></strong>.<br>Ta progression est sauvegardée sur ton compte et se synchronise automatiquement.</p>
+      <button class="btn" id="acct-sync">🔄 Synchroniser maintenant</button>
+      <button class="btn secondary" id="acct-signout">Se déconnecter</button>
+    </div>
+
+    <!-- déconnecté -->
+    <div id="acct-out">
+      <div class="typed-row" style="flex-direction:column;gap:10px;margin-top:14px">
+        <input type="email" id="acct-mail" class="typed-input" placeholder="Adresse e-mail" autocomplete="email" inputmode="email" />
+        <input type="password" id="acct-pass" class="typed-input" placeholder="Mot de passe (6 caractères min.)" autocomplete="current-password" />
+      </div>
+      <div class="acct-msg" id="acct-msg" style="display:none"></div>
+      <button class="btn" id="acct-login">Se connecter</button>
+      <button class="btn secondary" id="acct-signup">Créer un compte</button>
+      <p class="sync-hint" id="acct-forgot" style="cursor:pointer;text-decoration:underline">Mot de passe oublié ?</p>
+    </div>
+
+    <!-- non configuré -->
+    <div id="acct-off" style="display:none">
+      <p class="sync-hint" style="text-align:left;margin:14px 2px">La synchronisation par compte n'est pas encore activée sur cette version. Ta progression reste enregistrée sur cet appareil, et tu peux la transférer avec le code d'export en bas de l'accueil.</p>
+    </div>
+
+    <button class="btn secondary" id="acct-close" style="margin-top:16px">Fermer</button>
+  </div>
+</div>
+
 <div class="flash-red" id="flash-red"></div>
 
 <!-- LEVEL-UP TOAST -->
@@ -435,6 +482,8 @@
   <div class="lvlup-name" id="lvlup-name">Steward junior</div>
 </div>
 
+<script src="./config.js"></script>
+<script src="./sync.js"></script>
 <script src="./data.js"></script>
 <script src="./map.js"></script>
 <script src="./questions.js"></script>
@@ -913,6 +962,7 @@ function finishQuiz(){
     state.best[quiz.cat.id]=Math.max(state.best[quiz.cat.id]||0, scorePct);
   }
   saveState();
+  if(window.Sync && Sync.currentUser()) doSync(true);   // sauvegarde sur le compte, en arrière-plan
   const newLvl=levelInfo(state.xp);
   if(newLvl.i>prevLvl){
     setTimeout(()=>{
@@ -979,6 +1029,99 @@ document.getElementById("btn-mute").addEventListener("click",()=>{
 
 /* déverrouille l'audio au 1er contact (politique navigateurs) */
 window.addEventListener("pointerdown", ()=>Sound.unlock(), {once:true});
+
+/* ================= COMPTE & SYNCHRONISATION ================= */
+let syncBusy = false;
+
+function acctMsg(text, kind){
+  const el=document.getElementById("acct-msg");
+  if(!text){ el.style.display="none"; return; }
+  el.textContent=text; el.className="acct-msg "+(kind||"info"); el.style.display="block";
+}
+function renderAccount(){
+  const on = Sync.isConfigured();
+  const logged = !!Sync.currentUser();
+  document.getElementById("acct-off").style.display = on ? "none" : "block";
+  document.getElementById("acct-in").style.display  = (on && logged) ? "block" : "none";
+  document.getElementById("acct-out").style.display = (on && !logged) ? "block" : "none";
+  document.getElementById("acct-title").textContent = logged ? "Mon compte" : (on ? "Connexion" : "Mon compte");
+  document.getElementById("acct-sub").textContent = logged ? "Progression synchronisée" : "Synchronise ta progression";
+  if(logged) document.getElementById("acct-email").textContent = Sync.email() || "";
+  const btn=document.getElementById("btn-account");
+  btn.textContent = logged ? "✅" : "👤";
+  btn.classList.toggle("synced", logged);
+}
+function openAccount(){ acctMsg(null); renderAccount(); document.getElementById("acct-backdrop").classList.add("show"); }
+function closeAccount(){ document.getElementById("acct-backdrop").classList.remove("show"); }
+
+/* Fusionne local + distant, applique et ré-affiche. */
+async function doSync(silent){
+  if(syncBusy || !Sync.currentUser()) return;
+  syncBusy = true;
+  try{
+    const merged = await Sync.syncNow(state);
+    if(merged){ state = merged; saveState(); renderHome(); if(!silent) acctMsg("Progression synchronisée ✅","ok"); }
+  }catch(e){
+    if(!silent) acctMsg("Synchronisation impossible : "+(e.message||"réessaie plus tard"),"err");
+  }finally{ syncBusy = false; }
+}
+
+document.getElementById("btn-account").addEventListener("click",()=>{ Sound.tap(); openAccount(); });
+document.getElementById("acct-close").addEventListener("click",()=>{ Sound.tap(); closeAccount(); });
+document.getElementById("acct-backdrop").addEventListener("click",(e)=>{ if(e.target.id==="acct-backdrop") closeAccount(); });
+
+document.getElementById("acct-login").addEventListener("click", async ()=>{
+  const mail=document.getElementById("acct-mail").value.trim();
+  const pass=document.getElementById("acct-pass").value;
+  if(!mail||!pass){ acctMsg("Renseigne ton e-mail et ton mot de passe.","err"); return; }
+  acctMsg("Connexion…","info");
+  try{ await Sync.signIn(mail,pass); acctMsg("Connecté ✅ Synchronisation…","ok"); await doSync(true); renderAccount(); acctMsg("Progression synchronisée ✅","ok"); }
+  catch(e){ acctMsg(authError(e),"err"); }
+});
+
+document.getElementById("acct-signup").addEventListener("click", async ()=>{
+  const mail=document.getElementById("acct-mail").value.trim();
+  const pass=document.getElementById("acct-pass").value;
+  if(!mail||pass.length<6){ acctMsg("E-mail valide et mot de passe d'au moins 6 caractères.","err"); return; }
+  acctMsg("Création du compte…","info");
+  try{
+    const r=await Sync.signUp(mail,pass);
+    if(r.needsConfirm){ acctMsg("Compte créé ! Ouvre l'e-mail de confirmation, puis connecte-toi.","ok"); }
+    else { await doSync(true); renderAccount(); acctMsg("Compte créé et progression sauvegardée ✅","ok"); }
+  }catch(e){ acctMsg(authError(e),"err"); }
+});
+
+document.getElementById("acct-forgot").addEventListener("click", async ()=>{
+  const mail=document.getElementById("acct-mail").value.trim();
+  if(!mail){ acctMsg("Saisis d'abord ton e-mail, puis reclique ici.","info"); return; }
+  try{ await Sync.resetPassword(mail); acctMsg("E-mail de réinitialisation envoyé.","ok"); }
+  catch(e){ acctMsg(authError(e),"err"); }
+});
+
+document.getElementById("acct-sync").addEventListener("click", async ()=>{ acctMsg("Synchronisation…","info"); await doSync(false); });
+
+document.getElementById("acct-signout").addEventListener("click", async ()=>{
+  await doSync(true);              // on sauvegarde avant de partir
+  await Sync.signOut();
+  renderAccount(); acctMsg("Déconnecté. Ta progression reste sur cet appareil.","info");
+});
+
+function authError(e){
+  const m=(e && e.message || "").toLowerCase();
+  if(m.includes("invalid login")) return "E-mail ou mot de passe incorrect.";
+  if(m.includes("already registered")||m.includes("already been registered")) return "Un compte existe déjà avec cet e-mail — utilise « Se connecter ».";
+  if(m.includes("email not confirmed")) return "Confirme d'abord ton e-mail (vérifie tes spams).";
+  if(m.includes("password")) return "Mot de passe trop court (6 caractères minimum).";
+  if(m.includes("email")) return "Adresse e-mail invalide.";
+  if(m.includes("indisponible")) return e.message;
+  return "Erreur : "+(e.message||"réessaie");
+}
+
+Sync.onChange(renderAccount);
+Sync.init().then(async (ok)=>{
+  renderAccount();
+  if(ok && Sync.currentUser()) await doSync(true);   // sync silencieuse à l'ouverture
+});
 
 /* ================= INIT ================= */
 renderHome();
